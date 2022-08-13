@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthAspect.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">e-commerce</a> &gt; <a href="index.source.html" class="el_package">com.revature.advice</a> &gt; <span class="el_source">AuthAspect.java</span></div><h1>AuthAspect.java</h1><pre class="source lang-java linenums">package com.revature.advice;
+
+import com.revature.annotations.AuthRestriction;
+import com.revature.annotations.Authorized;
+import com.revature.exceptions.NotLoggedInException;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+@Aspect
+@Component
+public class AuthAspect {
+
+    // Spring will autowire a proxy object for the request
+    // It isn't a request object itself, but if there is an active request
+    // the proxy will pass method calls to the real request
+    private final HttpServletRequest req;
+
+<span class="fc" id="L23">    public AuthAspect(HttpServletRequest req) {</span>
+<span class="fc" id="L24">        this.req = req;</span>
+<span class="fc" id="L25">    }</span>
+
+    // This advice will execute around any method annotated with @Authorized
+    // If the user is not logged in, an exception will be thrown and handled
+    // Otherwise, the original method will be invoked as normal.
+    // In order to expand upon this, you just need to add additional
+    // values to the AuthRestriction enum.
+    // Examples might be &quot;Manager&quot; or &quot;Customer&quot; along with suitable Role
+    // values in the User class.
+    // Then this method can be expanded to throw exceptions if the user does
+    // not have the matching role.
+    // Example:
+    // User loggedInUser = (User) session.getAttribute(&quot;user&quot;);
+    // Role userRole = loggedInUser.getRole();
+    // if(authorized.value().equals(AuthRestriction.Manager) &amp;&amp; !Role.Manager.equals(userRole)) {
+    //     throw new InvalidRoleException(&quot;Must be logged in as a Manager to perform this action&quot;);
+    // }
+    // Then the RestExceptionHandler class can be expanded to include
+    // @ExceptionHandler(InvalidRoleException.class)
+    // which should return a 403 Forbidden such as:
+    // String errorMessage = &quot;Missing required role to perform this action&quot;;
+    // return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
+    @Around(&quot;@annotation(authorized)&quot;)
+    public Object authenticate(ProceedingJoinPoint pjp, Authorized authorized) throws Throwable {
+
+<span class="nc" id="L50">        HttpSession session = req.getSession(); // Get the session (or create one)</span>
+
+        // If the user is not logged in
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if(session.getAttribute(&quot;user&quot;) == null) {</span>
+<span class="nc" id="L54">            throw new NotLoggedInException(&quot;Must be logged in to perform this action&quot;);</span>
+        }
+
+<span class="nc" id="L57">        return pjp.proceed(pjp.getArgs()); // Call the originally intended method</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
