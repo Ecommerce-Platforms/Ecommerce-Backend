@@ -41,8 +41,8 @@ INSERT INTO product (id, quantity, price, description, image, name) VALUES (
 
 INSERT INTO users (id, email, password, first_name, last_name) VALUES (
     1,
-    'testuser@gmail.com',
-    'password',
+    'admin@gmail.com',
+    'Password3',
     'Test',
     'User'
 );
